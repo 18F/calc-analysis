@@ -1,4 +1,4 @@
 .ipynb_checkpoints
 venv
-logs.csv
-logs.h5
+log-analysis/logs.csv
+log-analysis/logs.h5
