@@ -9,6 +9,7 @@ you started:
 
   * [Log analysis](log-analysis/log-analysis.ipynb)
   * [Contract analysis](contract-analysis/contract-analysis.ipynb)
+  * [SIN analysis](contract-analysis/sin-analysis.ipynb)
 
 ## Interacting with the notebooks
 
