@@ -3,8 +3,8 @@ This repository contains analysis and science experiments regarding
 
 ## Reading the notebooks
 
-If you just want to read the notebooks, you can actually just use
-GitHub. Just look for the files ending in `.ipynb`. Here's a few to get
+If you only want to read the notebooks, you can actually just use
+GitHub--look for the files ending in `.ipynb`. Here's a few to get
 you started:
 
   * [Log analysis](log-analysis/log-analysis.ipynb)
