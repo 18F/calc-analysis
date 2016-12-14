@@ -1,8 +1,14 @@
 import pandas as pd
 import re
 import math
+import time
+import statistics
+from app.models import SINData
+from app import db
+
 calc_pricing = pd.read_csv("calc_pricing_results.csv")
 schedule_contracts = pd.read_csv("schedule_contracts_summary.csv")
+
 
 def is_nan(x):
     try:
@@ -86,12 +92,14 @@ def parse_sin(SIN,count):
 
 new_calc_pricing = pd.DataFrame()
 count = 0
+
+#clears out the database
+sin_dataset = SINData.query.all()
+db.session.delete(sin_dataset)
+
 for i in calc_pricing.index:
-    print("on element ",i)
-    print("count of SIN numbers that didn't need processing ",count)
     row = calc_pricing.ix[i].to_dict()
     if not is_nan(row["SIN"]):
-        print("value is not nan")
         try:
             SINS,count = parse_sin(row["SIN"],count)
         except:
@@ -104,8 +112,11 @@ for i in calc_pricing.index:
             SIN_list.append(tmp)
         #data is everything in the row
         for data in SIN_list:
-            new_calc_pricing = new_calc_pricing.append(data,ignore_index=True)
+            calc_data = SINData(sin=data["SIN"],vendor=data["Vendor Name"],contract_number=data["Contract #"])
+            db.session.add(calc_data)
+            db.session.commit()
     else:
-        new_calc_pricing = new_calc_pricing.append(row, ignore_index=True)
+        calc_data = SINData(sin=data["SIN"],vendor=data["Vendor Name"],contract_number=data["Contract #"])
+        db.session.add(calc_data)
+        db.session.commit()
     
-new_calc_pricing.to_csv("new_calc_pricing.csv")
