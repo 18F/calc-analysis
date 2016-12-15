@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import math
+import os
 calc_pricing = pd.read_csv("calc_pricing_results.csv")
 schedule_contracts = pd.read_csv("schedule_contracts_summary.csv")
 
@@ -84,6 +85,8 @@ def parse_sin(SIN,count):
         count += 1
     return SIN,count
 
+os.chdir("results")
+part = 0
 new_calc_pricing = pd.DataFrame()
 count = 0
 for i in calc_pricing.index:
@@ -107,5 +110,9 @@ for i in calc_pricing.index:
             new_calc_pricing = new_calc_pricing.append(data,ignore_index=True)
     else:
         new_calc_pricing = new_calc_pricing.append(row, ignore_index=True)
-    
-new_calc_pricing.to_csv("new_calc_pricing.csv")
+    if i % 1000 == 0:
+        new_calc_pricing.to_csv("new_calc_pricing_part_"+str(part)+".csv")
+        new_calc_pricing = pd.DataFrame()
+        part += 1
+        
+new_calc_pricing.to_csv("new_calc_pricing_part_"+str(part)+".csv")
