@@ -109,8 +109,6 @@ calc_sin_coverage = ps.sqldf(sin_join, locals())
 #print(check_check)
 #print(calc_sin_coverage.head())
 
-import code
-code.interact(local=locals())
 
 #calc_sin_coverage["schedule_number_s"] = [elem.strip() for elem in calc_sin_coverage["schedule_number_s"]]
 #calc_sin_coverage = calc_sin_coverage[calc_sin_coverage.schedule_number_s == "00CORP"]
@@ -161,10 +159,12 @@ py.offline.plot(schedule_graph, filename='schedules.html')
 ###  SINS GRAPH ###
 #####################
 
+#import code
+#code.interact(local=locals())
 ### calc unique sins
 calc_sins = go.Bar(
-    y=calc_sin_coverage['SIN'],
-    x=calc_sin_coverage['SINS_calc'],
+    y=[elem.strip().replace(' ','-') for elem in calc_sin_coverage['SIN']],
+    x=[float(elem) for elem in calc_sin_coverage['SINS_calc']],
     name='Contracts in CALC',
     orientation = 'h',
     marker = dict(
@@ -176,8 +176,8 @@ calc_sins = go.Bar(
 )
 ## trace2 = elibrary contracts
 elibrary_sins = go.Bar(
-    y=calc_sin_coverage['SIN'],
-    x=calc_sin_coverage['SINS_elibrary'],
+    y=[elem.strip().replace(" ","-") for elem in calc_sin_coverage['SIN']],
+    x=[float(elem) for elem in calc_sin_coverage['SINS_elibrary']],
     name='Contracts in eLibrary',
     orientation = 'h',
     marker = dict(
