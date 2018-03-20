@@ -3,4 +3,5 @@
 venv
 log-analysis/logs.csv
 log-analysis/logs.h5
+data/glove.*
 *.html
