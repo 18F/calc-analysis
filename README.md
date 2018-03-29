@@ -7,9 +7,15 @@ If you only want to read the notebooks, you can actually just use
 GitHub--look for the files ending in `.ipynb`. Here's a few to get
 you started:
 
-  * [Log analysis](log-analysis/log-analysis.ipynb)
-  * [Contract analysis](contract-analysis/contract-analysis.ipynb)
-  * [SIN analysis](contract-analysis/sin-analysis.ipynb)
+  * [Anomaly detection](contract-analysis/anomaly-detection.ipynb) can help us find invalid/incorrect data in CALC.
+
+  * [Fun with CALC and pre-trained GloVe word embeddings](contract-analysis/glove_fun.ipynb) can help us perform _semantic_ search in CALC, e.g. searching for "tutor" and getting results like "Principal Instruction Technologist".
+
+  * [Log analysis](log-analysis/log-analysis.ipynb) contains some open-ended exploration of CALC's API logs, to learn how people are using CALC (note that CALC's API is used by CALC's front page).
+
+  * [Contract analysis](contract-analysis/contract-analysis.ipynb) contains open-ended exploration of CALC's contract data.
+
+  * [SIN analysis](contract-analysis/sin-analysis.ipynb) attempts to parse and make sense of CALC's unstructured Special Item Number (SIN) data.
 
 ## Interacting with the notebooks
 
