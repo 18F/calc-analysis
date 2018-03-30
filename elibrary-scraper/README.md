@@ -17,7 +17,7 @@ npm start -- GS-00F-239DA
 
 This should produce:
 
-```json
+```js
 { contractor:
    { name: 'INTELLECT SOLUTIONS, LLC',
      website: 'http://www.intellectsolutions.com',
