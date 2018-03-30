@@ -1,5 +1,6 @@
 import * as url from "url";
 import * as request from "request";
+import * as cheerio from "cheerio";
 
 // TODO: Get rid of this eventually.
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";

@@ -19,6 +19,7 @@ interface ContractorInfo {
 
 interface ContractInfo {
     contractor: ContractorInfo;
+    pricelistURL?: string;
     number: string;
     endDate: string;
     sins: string[];
@@ -70,6 +71,7 @@ function parseContractorInfoHTML(html: string): ContractInfo {
     const sourcesTable = table.find('table:nth-child(2)');
     const contractRow = sourcesTable.find('tr:nth-child(2)');
     const number = contractRow.find('td:nth-child(3)').text().trim();
+    const pricelistURL = contractRow.find('td:nth-child(4) a').attr('href');
     const endDate = contractRow.find('td:nth-child(5)').text().trim();
     const sins = contractRow.find('td:nth-child(6) a')
         .map((i, a) => $(a).text()).get();
@@ -80,6 +82,8 @@ function parseContractorInfoHTML(html: string): ContractInfo {
         sins,
         endDate
     };
+
+    if (pricelistURL) result.pricelistURL = pricelistURL.trim();
 
     return result;
 }
