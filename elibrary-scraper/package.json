@@ -1,0 +1,20 @@
+{
+  "name": "elibrary-scraper",
+  "version": "1.0.0",
+  "description": "GSA eLibrary scraper",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node scraper.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "CC0-1.0",
+  "dependencies": {
+    "@types/cheerio": "^0.22.7",
+    "@types/request": "^2.47.0",
+    "cheerio": "^1.0.0-rc.2",
+    "request": "^2.85.0",
+    "ts-node": "^5.0.1",
+    "typescript": "^2.8.1"
+  }
+}
