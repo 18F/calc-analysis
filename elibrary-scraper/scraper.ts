@@ -91,11 +91,9 @@ function parseContractorInfoHTML(html: string): ContractInfo {
 if (module.parent === null) {
     const contract = process.argv[2] || 'GS-10F-0247K';
 
-    console.log(`Getting info for contract ${contract}...`);
-
     getContractorInfoHTML(contract)
         .then(html => {
-            console.log(parseContractorInfoHTML(html));
+            console.log(JSON.stringify(parseContractorInfoHTML(html), null, 2));
         }).catch(e => {
             console.error(e);
             process.exit(1);

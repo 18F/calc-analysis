@@ -17,16 +17,24 @@ npm start -- GS-00F-239DA
 
 This should produce:
 
-```js
-{ contractor:
-   { name: 'INTELLECT SOLUTIONS, LLC',
-     website: 'http://www.intellectsolutions.com',
-     duns: '172179850',
-     naics: '541611',
-     address: '312-F EAST MARKET ST SUITE 114\nLEESBURG, VA 20176-4101' },
-  number: 'GS-00F-239DA',
-  sins: [ '874 1', '874 4', '874 7' ],
-  endDate: 'Jul 31, 2021' }
+```json
+{
+  "contractor": {
+    "name": "INTELLECT SOLUTIONS, LLC",
+    "website": "http://www.intellectsolutions.com",
+    "duns": "172179850",
+    "naics": "541611",
+    "address": "312-F EAST MARKET ST SUITE 114\nLEESBURG, VA 20176-4101"
+  },
+  "number": "GS-00F-239DA",
+  "sins": [
+    "874 1",
+    "874 4",
+    "874 7"
+  ],
+  "endDate": "Jul 31, 2021",
+  "pricelistURL": "https://www.gsaadvantage.gov/ref_text/GS00F239DA/GS00F239DA_online.htm"
+}
 ```
 
 [GSA eLibrary]: https://www.gsaelibrary.gsa.gov/
