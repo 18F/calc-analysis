@@ -57,6 +57,7 @@ interface ContractorInfo {
 
 interface ContractInfo {
     contractor: ContractorInfo;
+    number: string;
     endDate: string;
     sins: string[];
 }
@@ -105,12 +106,15 @@ function parseContractorInfoHTML(html: string): ContractInfo {
 
     const table = skipnav.closest('table').next('table');
     const sourcesTable = table.find('table:nth-child(2)');
-    const endDate = sourcesTable.find('tr:nth-child(2) td:nth-child(5)').text().trim();
-    const sins = sourcesTable.find('tr:nth-child(2) td:nth-child(6) a')
+    const contractRow = sourcesTable.find('tr:nth-child(2)');
+    const number = contractRow.find('td:nth-child(3)').text().trim();
+    const endDate = contractRow.find('td:nth-child(5)').text().trim();
+    const sins = contractRow.find('td:nth-child(6) a')
         .map((i, a) => $(a).text()).get();
 
     const result: ContractInfo = {
         contractor: parseContractorInfo($, table),
+        number,
         sins,
         endDate
     };
@@ -121,7 +125,7 @@ function parseContractorInfoHTML(html: string): ContractInfo {
 if (module.parent === null) {
     const contract = process.argv[2] || 'GS-10F-0247K';
 
-    console.log(`Getting info for ${contract}...`);
+    console.log(`Getting info for contract ${contract}...`);
 
     getContractorInfoHTML(contract)
         .then(html => {
