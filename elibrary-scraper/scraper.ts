@@ -5,7 +5,18 @@ import * as net from "./net";
 import { InvalidContractError } from './exceptions';
 
 async function getContractorInfoHTML(contract: string): Promise<string> {
-    const url = await cache.get(`url_${contract}`, () => net.getContractorInfoURL(contract));
+    const url = await cache.get(`url_${contract}`, () => {
+        return net.getContractorInfoURL(contract).catch((e) => {
+            if (e instanceof InvalidContractError) {
+                return JSON.stringify({message: e.message});
+            }
+            throw e;
+        });
+    });
+
+    if (url[0] === '{') {
+        throw new InvalidContractError(JSON.parse(url).message);
+    }
 
     return cache.get(`html_${contract}`, () => net.getContractorInfoHTML(url));
 }
