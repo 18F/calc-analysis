@@ -60,9 +60,9 @@ class ContractStream extends Transform {
 if (module.parent === null) {
     const contractStream = new ContractStream();
     const bar = new ProgressBar(
-        'scraping [:bar] :percent / ' +
-        ':valid valid contracts / ' +
-        ':invalid invalid contracts',
+        'scraping [:bar] :percent | ' +
+        'contracts: :valid valid / ' +
+        ':invalid invalid',
         {
           total: fs.statSync(HOURLY_PRICES_CSV).size,
         }
