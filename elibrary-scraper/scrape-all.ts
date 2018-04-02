@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { Transform } from "stream";
 import * as csvParse from "csv-parse";
+import * as ProgressBar from "progress";
 
 import * as cache from "./cache";
 import { getContractorInfo, ContractInfo } from "./scraper";
@@ -32,7 +33,6 @@ class ContractStream extends Transform {
             return callback(null, null);
         }
         this.contracts.add(contract);
-        console.log(`Retrieving ${contract}...`);
 
         getCachedContractorInfo(contract).then(info => {
             this.validContracts.add(contract);
@@ -40,9 +40,16 @@ class ContractStream extends Transform {
         }).catch(e => {
             if (e instanceof InvalidContractError) {
                 this.invalidContracts.add(contract);
-                console.warn(`  Invalid contract ${contract} expiring ${endDate} (${e.message})`);
+                this.emit(
+                    'status',
+                    `Invalid contract ${contract} expiring ${endDate} (${e.message})`
+                );
                 callback(null, null);
             } else {
+                this.emit(
+                    'status',
+                    `Error retrieving contract ${contract} (${e.message})`
+                );
                 callback(e, null);
             }
         });
@@ -51,13 +58,20 @@ class ContractStream extends Transform {
 
 if (module.parent === null) {
     const contractStream = new ContractStream();
+    const bar = new ProgressBar('scraping [:bar] :percent :etas', {
+        total: fs.statSync(HOURLY_PRICES_CSV).size,
+    });
 
-    fs.createReadStream(HOURLY_PRICES_CSV)
+    fs.createReadStream(HOURLY_PRICES_CSV, { highWaterMark: 1024 })
+        .on('data', (chunk: Buffer) => {
+            bar.tick(chunk.length);
+        })
         .pipe(csvParse({ columns: true }))
         .pipe(contractStream)
-        .on('data', function(record: ContractInfo) {
-            console.log(`  Retrieved ${record.number}.`);
+        .on('status', function(msg: string) {
+            bar.interrupt(msg);
         })
+        .on('data', function(_record: ContractInfo) {})
         .on('error', function(e: any) {
             console.error(e);
             process.exit(1);
