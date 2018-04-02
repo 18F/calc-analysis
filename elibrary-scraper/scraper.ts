@@ -88,12 +88,16 @@ function parseContractorInfoHTML(html: string): ContractInfo {
     return result;
 }
 
+function getContractorInfo(contract: string): Promise<ContractInfo> {
+    return getContractorInfoHTML(contract).then(parseContractorInfoHTML);
+}
+
 if (module.parent === null) {
     const contract = process.argv[2] || 'GS-10F-0247K';
 
-    getContractorInfoHTML(contract)
-        .then(html => {
-            console.log(JSON.stringify(parseContractorInfoHTML(html), null, 2));
+    getContractorInfo(contract)
+        .then(info => {
+            console.log(JSON.stringify(info, null, 2));
         }).catch(e => {
             console.error(e);
             process.exit(1);
