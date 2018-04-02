@@ -27,6 +27,7 @@ class ContractStream extends Transform {
 
     _transform(csvRecord: any, _: any, callback: (err: Error|null, contract: ContractInfo|null) => void) {
         const contract = (csvRecord['CONTRACT .'] as string).trim();
+        const endDate = (csvRecord['End Date'] as string).trim();
         if (this.contracts.has(contract)) {
             return callback(null, null);
         }
@@ -39,7 +40,7 @@ class ContractStream extends Transform {
         }).catch(e => {
             if (e instanceof InvalidContractError) {
                 this.invalidContracts.add(contract);
-                console.warn(`  ${e.message}`);
+                console.warn(`  Invalid contract ${contract} expiring ${endDate} (${e.message})`);
                 callback(null, null);
             } else {
                 callback(e, null);

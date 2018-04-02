@@ -69,7 +69,9 @@ function parseContractorInfoHTML(html: string): ContractInfo {
             // Sometimes GSA eLibrary thinks it has contract information,
             // but doesn't actually, so it returns HTML with this
             // error message.
-            throw new InvalidContractError('invalid contract HTML');
+            throw new InvalidContractError(
+                'GSA eLibrary could not retrieve contractor information'
+            );
         }
         throw new Error('could not find skipnavigation target!');
     }

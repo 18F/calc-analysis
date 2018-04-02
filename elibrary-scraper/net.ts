@@ -27,7 +27,7 @@ export function getContractorInfoURL(contract: string): Promise<string> {
                 const href = url.resolve(SEARCH_RESULTS_URL, a.attr('href'));
                 return resolve(href);
             }
-            reject(new InvalidContractError(`Invalid contract: ${contract}`));
+            reject(new InvalidContractError(`GSA eLibrary has no results for ${contract}`));
         });
     });
 }
