@@ -33,6 +33,16 @@ export async function get(key: string, getter?: () => Promise<string>): Promise<
     return readFile(keyPath(key), { encoding: 'utf-8' });
 }
 
+export async function getJSON<T>(key: string, getter?: () => Promise<T>): Promise<T> {
+    const strGetter = getter ? async () => {
+        const obj = await getter();
+        return JSON.stringify(obj, null, 2);
+    } : undefined;
+    const str = await get(key, strGetter);
+
+    return JSON.parse(str) as T;
+}
+
 export async function set(key: string, value: string): Promise<void> {
     await ensureCacheDirExists();
 

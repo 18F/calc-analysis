@@ -1,12 +1,17 @@
 import * as fs from "fs";
 import * as path from "path";
 import { Transform } from "stream";
-
 import * as csvParse from "csv-parse";
 
+import * as cache from "./cache";
 import { getContractorInfo, ContractInfo } from "./scraper";
+import { InvalidContractError } from "./exceptions";
 
 const HOURLY_PRICES_CSV = path.join(__dirname, '..', 'data', 'hourly_prices.csv');
+
+async function getCachedContractorInfo(contract: string): Promise<ContractInfo> {
+    return cache.getJSON(`parsed_${contract}`, () => getContractorInfo(contract));
+}
 
 class ContractStream extends Transform {
     contracts: Set<string>;
@@ -26,14 +31,15 @@ class ContractStream extends Transform {
             return callback(null, null);
         }
         this.contracts.add(contract);
+        console.log(`Retrieving ${contract}...`);
 
-        getContractorInfo(contract).then(info => {
+        getCachedContractorInfo(contract).then(info => {
             this.validContracts.add(contract);
             callback(null, info);
         }).catch(e => {
-            if (/Invalid contract/.test(e.message)) {
+            if (e instanceof InvalidContractError) {
                 this.invalidContracts.add(contract);
-                console.warn(e.message);
+                console.warn(`  ${e.message}`);
                 callback(null, null);
             } else {
                 callback(e, null);
@@ -49,7 +55,7 @@ if (module.parent === null) {
         .pipe(csvParse({ columns: true }))
         .pipe(contractStream)
         .on('data', function(record: ContractInfo) {
-            console.log(`Retrieved ${record.number}.`);
+            console.log(`  Retrieved ${record.number}.`);
         })
         .on('error', function(e: any) {
             console.error(e);

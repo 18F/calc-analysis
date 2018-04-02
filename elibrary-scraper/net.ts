@@ -2,6 +2,8 @@ import * as url from "url";
 import * as request from "request";
 import * as cheerio from "cheerio";
 
+import { InvalidContractError } from './exceptions';
+
 // TODO: Get rid of this eventually.
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
@@ -25,7 +27,7 @@ export function getContractorInfoURL(contract: string): Promise<string> {
                 const href = url.resolve(SEARCH_RESULTS_URL, a.attr('href'));
                 return resolve(href);
             }
-            reject(new Error(`Invalid contract: ${contract}`));
+            reject(new InvalidContractError(`Invalid contract: ${contract}`));
         });
     });
 }

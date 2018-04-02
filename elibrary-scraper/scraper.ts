@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 
 import * as cache from "./cache";
 import * as net from "./net";
+import { InvalidContractError } from './exceptions';
 
 async function getContractorInfoHTML(contract: string): Promise<string> {
     const url = await cache.get(`url_${contract}`, () => net.getContractorInfoURL(contract));
@@ -64,6 +65,12 @@ function parseContractorInfoHTML(html: string): ContractInfo {
     const skipnav = $('a[name="skipnavigation"]');
 
     if (skipnav.length !== 1) {
+        if (/Could not retrieve contractor information for/.test(html)) {
+            // Sometimes GSA eLibrary thinks it has contract information,
+            // but doesn't actually, so it returns HTML with this
+            // error message.
+            throw new InvalidContractError('invalid contract HTML');
+        }
         throw new Error('could not find skipnavigation target!');
     }
 
