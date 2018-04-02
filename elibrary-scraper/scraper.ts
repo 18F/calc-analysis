@@ -9,7 +9,7 @@ async function getContractorInfoHTML(contract: string): Promise<string> {
     return cache.get(`html_${contract}`, () => net.getContractorInfoHTML(url));
 }
 
-interface ContractorInfo {
+export interface ContractorInfo {
     name: string;
     website?: string;
     duns?: string;
@@ -17,7 +17,7 @@ interface ContractorInfo {
     address?: string;
 }
 
-interface ContractInfo {
+export interface ContractInfo {
     contractor: ContractorInfo;
     pricelistURL?: string;
     number: string;
@@ -88,7 +88,7 @@ function parseContractorInfoHTML(html: string): ContractInfo {
     return result;
 }
 
-function getContractorInfo(contract: string): Promise<ContractInfo> {
+export function getContractorInfo(contract: string): Promise<ContractInfo> {
     return getContractorInfoHTML(contract).then(parseContractorInfoHTML);
 }
 
