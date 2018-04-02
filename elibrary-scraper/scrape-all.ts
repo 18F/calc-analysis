@@ -40,6 +40,7 @@ class ContractStream extends Transform {
         }).catch(e => {
             if (e instanceof InvalidContractError) {
                 this.invalidContracts.add(contract);
+                this.emit('invalid-contract');
                 this.emit(
                     'status',
                     `Invalid contract ${contract} expiring ${endDate} (${e.message})`
@@ -58,9 +59,20 @@ class ContractStream extends Transform {
 
 if (module.parent === null) {
     const contractStream = new ContractStream();
-    const bar = new ProgressBar('scraping [:bar] :percent :etas', {
-        total: fs.statSync(HOURLY_PRICES_CSV).size,
-    });
+    const bar = new ProgressBar(
+        'scraping [:bar] :percent / ' +
+        ':valid valid contracts / ' +
+        ':invalid invalid contracts',
+        {
+          total: fs.statSync(HOURLY_PRICES_CSV).size,
+        }
+    );
+    const updateContractCounts = () => {
+        bar.tick({
+            'valid': contractStream.validContracts.size,
+            'invalid': contractStream.invalidContracts.size
+        });
+    };
 
     fs.createReadStream(HOURLY_PRICES_CSV, { highWaterMark: 1024 })
         .on('data', (chunk: Buffer) => {
@@ -71,13 +83,13 @@ if (module.parent === null) {
         .on('status', function(msg: string) {
             bar.interrupt(msg);
         })
-        .on('data', function(_record: ContractInfo) {})
+        .on('data', function(_record: ContractInfo) {
+            updateContractCounts();
+        })
+        .on('invalid-contract', updateContractCounts)
         .on('error', function(e: any) {
             console.error(e);
             process.exit(1);
         })
-        .on('end', function() {
-            console.log(`Valid contracts: ${contractStream.validContracts.size}`);
-            console.log(`Invalid contracts: ${contractStream.invalidContracts.size}`);
-        });
+        .on('end', updateContractCounts);
 }
