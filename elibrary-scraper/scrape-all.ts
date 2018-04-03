@@ -64,18 +64,19 @@ class ContractStream extends Transform {
             this.validContracts.add(contract);
             callback(null, info);
         }).catch(e => {
+            const name = `${rate.idv_piid} / ${rate.vendor_name}`;
             if (e instanceof InvalidContractError) {
                 this.invalidContracts.add(contract);
                 this.emit('invalid-contract');
                 this.emit(
                     'status',
-                    `Invalid contract ${rate.idv_piid} (${e.message})`
+                    `Invalid contract ${name} (${e.message})`
                 );
                 callback(null, null);
             } else {
                 this.emit(
                     'status',
-                    `Error retrieving contract ${rate.idv_piid} (${e.message})`
+                    `Error retrieving contract ${name} (${e.message})`
                 );
                 callback(e, null);
             }
