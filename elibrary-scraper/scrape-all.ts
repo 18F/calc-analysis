@@ -17,6 +17,29 @@ async function getCachedContractorInfo(contract: string): Promise<ContractInfo> 
     return cache.getJSON(`parsed_${contract}`, () => getContractorInfo(contract));
 }
 
+function normalizeContractNumber(value: string): string {
+   const re = /^(\wF)(\w\w\w\w\w)$/;
+   const match = re.exec(value);
+   // https://github.com/18F/calc/issues/1668#issuecomment-377513631
+   const bizarroToGs: {[key: string]: string|undefined} = {
+       'BF': 'GS-00F',
+       'TF': 'GS-10F',
+       'FF': 'GS-07F',
+       'XF': 'GS-23F',
+   };
+   if (match) {
+       const bizarro = match[1];
+       const final = match[2];
+       const gs = bizarroToGs[bizarro];
+       if (gs) {
+           return `${gs}-${final}`
+       } else {
+           throw new Error(`No bizarro mapping for ${value}`);
+       }
+   }
+   return value;
+}
+
 class ContractStream extends Transform {
     contracts: Set<string>;
     validContracts: Set<string>;
@@ -30,7 +53,7 @@ class ContractStream extends Transform {
     }
 
     _transform(rate: Rate, _: any, callback: (err: Error|null, contract: ContractInfo|null) => void) {
-        const contract = rate.idv_piid;
+        const contract = normalizeContractNumber(rate.idv_piid);
         if (this.contracts.has(contract)) {
             return callback(null, null);
         }
@@ -45,13 +68,13 @@ class ContractStream extends Transform {
                 this.emit('invalid-contract');
                 this.emit(
                     'status',
-                    `Invalid contract ${contract} (${e.message})`
+                    `Invalid contract ${rate.idv_piid} (${e.message})`
                 );
                 callback(null, null);
             } else {
                 this.emit(
                     'status',
-                    `Error retrieving contract ${contract} (${e.message})`
+                    `Error retrieving contract ${rate.idv_piid} (${e.message})`
                 );
                 callback(e, null);
             }
@@ -70,12 +93,13 @@ function toRateStream(raw: Readable, filename: string): Transform {
 
 if (module.parent === null) {
     const contractStream = new ContractStream();
+    const filename = process.argv[2] || HOURLY_PRICES_CSV;
     const bar = new ProgressBar(
         'scraping [:bar] :percent | ' +
         'contracts: :valid valid / ' +
         ':invalid invalid',
         {
-          total: fs.statSync(HOURLY_PRICES_CSV).size,
+          total: fs.statSync(filename).size,
         }
     );
     const updateContractCounts = () => {
@@ -84,8 +108,6 @@ if (module.parent === null) {
             'invalid': contractStream.invalidContracts.size
         });
     };
-
-    const filename = process.argv[2] || HOURLY_PRICES_CSV;
 
     const raw = fs.createReadStream(filename, { highWaterMark: 1024 })
         .on('data', (chunk: Buffer) => {
