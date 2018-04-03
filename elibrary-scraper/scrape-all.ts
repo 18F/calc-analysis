@@ -26,6 +26,7 @@ function normalizeContractNumber(value: string): string {
        'TF': 'GS-10F',
        'FF': 'GS-07F',
        'XF': 'GS-23F',
+       'ZF': 'GS-35F',
    };
    if (match) {
        const bizarro = match[1];
