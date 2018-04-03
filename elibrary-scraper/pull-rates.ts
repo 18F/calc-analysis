@@ -4,7 +4,7 @@ import * as request from "request";
 import * as ProgressBar from "progress";
 import * as JSONStream from "JSONStream";
 
-interface Rate {
+export interface Rate {
     id: number;
     idv_piid: string;
     vendor_name: string;

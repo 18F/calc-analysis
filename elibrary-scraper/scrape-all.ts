@@ -1,12 +1,15 @@
 import * as fs from "fs";
 import * as path from "path";
-import { Transform } from "stream";
+import { Readable, Transform } from "stream";
 import * as csvParse from "csv-parse";
 import * as ProgressBar from "progress";
+import * as JSONStream from "JSONStream";
 
 import * as cache from "./cache";
 import { getContractorInfo, ContractInfo } from "./scraper";
 import { InvalidContractError } from "./exceptions";
+import CsvTransformer from "./csv-transformer";
+import { Rate } from "./pull-rates";
 
 const HOURLY_PRICES_CSV = path.join(__dirname, '..', 'data', 'hourly_prices.csv');
 
@@ -26,9 +29,8 @@ class ContractStream extends Transform {
         this.invalidContracts = new Set();
     }
 
-    _transform(csvRecord: any, _: any, callback: (err: Error|null, contract: ContractInfo|null) => void) {
-        const contract = (csvRecord['CONTRACT .'] as string).trim();
-        const endDate = (csvRecord['End Date'] as string).trim();
+    _transform(rate: Rate, _: any, callback: (err: Error|null, contract: ContractInfo|null) => void) {
+        const contract = rate.idv_piid;
         if (this.contracts.has(contract)) {
             return callback(null, null);
         }
@@ -43,7 +45,7 @@ class ContractStream extends Transform {
                 this.emit('invalid-contract');
                 this.emit(
                     'status',
-                    `Invalid contract ${contract} expiring ${endDate} (${e.message})`
+                    `Invalid contract ${contract} (${e.message})`
                 );
                 callback(null, null);
             } else {
@@ -54,6 +56,15 @@ class ContractStream extends Transform {
                 callback(e, null);
             }
         });
+    }
+}
+
+function toRateStream(raw: Readable, filename: string): Transform {
+    if (/\.csv$/.test(filename)) {
+        return raw.pipe(csvParse({ columns: true }))
+          .pipe(new CsvTransformer());
+    } else {
+        return raw.pipe(JSONStream.parse('*'));
     }
 }
 
@@ -74,11 +85,14 @@ if (module.parent === null) {
         });
     };
 
-    fs.createReadStream(HOURLY_PRICES_CSV, { highWaterMark: 1024 })
+    const filename = process.argv[2] || HOURLY_PRICES_CSV;
+
+    const raw = fs.createReadStream(filename, { highWaterMark: 1024 })
         .on('data', (chunk: Buffer) => {
             bar.tick(chunk.length);
-        })
-        .pipe(csvParse({ columns: true }))
+        });
+
+    toRateStream(raw, filename)
         .pipe(contractStream)
         .on('status', function(msg: string) {
             bar.interrupt(msg);
